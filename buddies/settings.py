@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "graphene_django",
 ]
 
 MIDDLEWARE = [
@@ -131,4 +132,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+}
+
+GRAPHENE = {
+    "SCHEMA": "transactions.schema.schema",
 }
