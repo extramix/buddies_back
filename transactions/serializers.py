@@ -7,6 +7,19 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = ['id', 'account', 'category', 'amount', 'date', 'description']
 
+    def validate(self, data):
+        user = self.context['request'].user
+        
+        # Validate account ownership
+        if data['account'].user != user:
+            raise serializers.ValidationError({"account": "You can only create transactions for your own accounts"})
+        
+        # Validate category ownership
+        if data['category'].user != user:
+            raise serializers.ValidationError({"category": "You can only use your own categories"})
+        
+        return data
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255)
