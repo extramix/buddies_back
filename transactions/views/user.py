@@ -12,23 +12,27 @@ from django.http import JsonResponse
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # authentication_classes = [SessionAuthentication]
 
     def get_permissions(self):
-        # if self.action == "create" or self.action == "me":
-        return [permissions.AllowAny()]
-        # return super().get_permissions()
+        if self.action == 'me':
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def list(self, request, *args, **kwargs):
+        # allow only admin to list users
+        if not request.user.is_superuser:
+            raise PermissionDenied("This action is not allowed")
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise PermissionDenied("This action is not allowed")
+        return super().retrieve(request, *args, **kwargs)
 
     @action(methods=["get"], detail=False)
     def me(self, request):
-        if not request.user.is_authenticated:
-            return JsonResponse(
-                {
-                    "name": "",
-                    "username": "",
-                    "email": "",
-                }
-            )
         return JsonResponse(
             {
                 "name": request.user.get_full_name(),
