@@ -8,6 +8,7 @@ from transactions.serializers import TransactionSerializer
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
 
