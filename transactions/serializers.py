@@ -5,7 +5,7 @@ from .models import Transaction, User, Account, Category
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = "__all__"
+        fields = ['id', 'account', 'category', 'amount', 'date', 'description']
 
 
 class LoginSerializer(serializers.Serializer):
