@@ -34,7 +34,22 @@ class AuthViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_200_OK,
         )
+    @action(methods=["post"], detail=False)
+    def logout(self, request):
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @method_decorator(ensure_csrf_cookie)
     @action(methods=["get"], detail=False)
-    def csrf_token(self, request):
-        return JsonResponse({"token": get_token(request)}, status=status.HTTP_200_OK)
+    def session(self, request):
+        if not request.user.is_authenticated:
+            return Response({"isAuthenticated": False})
+            
+        return Response({
+            "isAuthenticated": True,
+            "user": {
+                "name": request.user.get_full_name(),
+                "username": request.user.username,
+                "email": request.user.email,
+            }
+        })
