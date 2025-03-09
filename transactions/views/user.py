@@ -14,7 +14,9 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        if self.action == 'me':
+        if self.action == 'create':
+            permission_classes = [permissions.AllowAny]
+        elif self.action == 'me':
             permission_classes = [permissions.IsAuthenticated]
         else:
             permission_classes = [permissions.IsAdminUser]
