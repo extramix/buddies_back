@@ -3,10 +3,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import permissions
 from transactions.serializers import LoginSerializer
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 class AuthViewSet(viewsets.ViewSet):
