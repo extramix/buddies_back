@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transaction, User
+from .models import Transaction, User, Account, Category
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -29,3 +29,17 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data["last_name"],
         )
         return user
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'name', 'currency']
+        read_only_fields = ['user']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'type']
+        read_only_fields = ['user']
