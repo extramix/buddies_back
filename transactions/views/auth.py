@@ -14,7 +14,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 class AuthViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
 
-    @method_decorator(csrf_protect)
     @action(methods=["post"], detail=False)
     def login(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -55,3 +54,7 @@ class AuthViewSet(viewsets.ViewSet):
                 "email": request.user.email,
             }
         })
+    
+    @action(methods=["get"], detail=False)
+    def csrf_token(self, request):
+        return Response({"csrfToken": get_token(request)})

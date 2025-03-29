@@ -149,12 +149,13 @@ SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
 SESSION_COOKIE_SAMESITE = 'Lax'  # Protect against CSRF
 CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
 CSRF_COOKIE_HTTPONLY = False  # JavaScript needs to read CSRF cookie, so I'll set it to False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']  # TODO: change this later if deployed
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']  # TODO: change this later if deployed
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
-if DEBUG:
+if True:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-    CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
