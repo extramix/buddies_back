@@ -27,13 +27,22 @@ class Query(graphene.ObjectType):
     transactions = graphene.List(TransactionType)
 
     def resolve_accounts(self, info):
-        return Account.objects.all()
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        return Account.objects.filter(user=user)
 
     def resolve_categories(self, info):
-        return Category.objects.all()
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        return Category.objects.filter(user=user)
 
     def resolve_transactions(self, info):
-        return Transaction.objects.all()
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        return Transaction.objects.filter(account__user=user)
 
 
 schema = graphene.Schema(query=Query)
