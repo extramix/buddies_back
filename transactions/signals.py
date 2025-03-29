@@ -133,7 +133,7 @@ def create_default_data(sender, instance, created, **kwargs):
             },
              {
                 "account": default_account,
-                "category": income_category_objects[3],
+                "category": income_category_objects[2],
                 "amount": Decimal("50000.00"),
                 "date": date.today() - timedelta(days=22),
                 "description": "Stock dividends"
