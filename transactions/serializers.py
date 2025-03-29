@@ -3,9 +3,12 @@ from .models import Transaction, User, Account, Category
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    category_name = serializers.ReadOnlyField(source='category.name')
+    account_name = serializers.ReadOnlyField(source='account.name')
+    
     class Meta:
         model = Transaction
-        fields = ['id', 'account', 'category', 'amount', 'date', 'description']
+        fields = ['id', 'account', 'account_name', 'category', 'category_name', 'amount', 'date', 'description']
 
     def validate(self, data):
         user = self.context['request'].user
