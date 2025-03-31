@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from .models import Account, Category, Transaction
+from decimal import Decimal
+from graphql import GraphQLError
 
 
 class AccountType(DjangoObjectType):
@@ -99,7 +101,21 @@ class CreateTransaction(graphene.Mutation):
             raise GraphQLError("User not authenticated")
         account = Account.objects.get(id=account_id)
         category = Category.objects.get(id=category_id)
-        transaction = Transaction.objects.create(user=user, account=account, category=category, amount=amount, date=date, description=description)
+        
+        if account.user != user:
+            raise GraphQLError("You can only create transactions for your own accounts")
+        if category.user != user:
+            raise GraphQLError("You can only use your own categories")
+            
+        decimal_amount = Decimal(str(amount))
+            
+        transaction = Transaction.objects.create(
+            account=account,
+            category=category,
+            amount=decimal_amount,
+            date=date,
+            description=description
+        )
         return CreateTransaction(transaction=transaction)
 
 
