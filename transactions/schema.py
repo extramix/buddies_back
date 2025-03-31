@@ -15,6 +15,10 @@ class CategoryType(DjangoObjectType):
         fields = "__all__"
 
 
+class CategorizedType(graphene.ObjectType):
+    income = graphene.List(CategoryType)
+    expense = graphene.List(CategoryType)
+
 class TransactionType(DjangoObjectType):
     class Meta:
         model = Transaction
@@ -23,7 +27,7 @@ class TransactionType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     accounts = graphene.List(AccountType)
-    categories = graphene.List(CategoryType)
+    categories = graphene.Field(CategorizedType)
     transactions = graphene.List(TransactionType)
 
     def resolve_accounts(self, info):
@@ -36,7 +40,12 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             raise GraphQLError("User not authenticated")
-        return Category.objects.filter(user=user)
+
+        queryset = Category.objects.filter(user=user)
+        return {
+            "income": queryset.filter(type="INCOME"),
+            "expense": queryset.filter(type="EXPENSE"),
+        }
 
     def resolve_transactions(self, info):
         user = info.context.user
@@ -45,4 +54,60 @@ class Query(graphene.ObjectType):
         return Transaction.objects.filter(account__user=user)
 
 
-schema = graphene.Schema(query=Query)
+class CreateAccount(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        currency = graphene.String(required=True)
+
+    account = graphene.Field(AccountType)
+
+    def mutate(self, info, name, currency):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        account = Account.objects.create(user=user, name=name, currency=currency)
+        return CreateAccount(account=account)
+
+
+class CreateCategory(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        type = graphene.String(required=True)
+
+    category = graphene.Field(CategoryType)
+
+    def mutate(self, info, name, type):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        category = Category.objects.create(user=user, name=name, type=type)
+        return CreateCategory(category=category)
+
+class CreateTransaction(graphene.Mutation):
+    class Arguments:
+        account_id = graphene.ID(required=True)
+        category_id = graphene.ID(required=True)
+        amount = graphene.Float(required=True)
+        date = graphene.Date(required=True)
+        description = graphene.String(required=True)
+
+    transaction = graphene.Field(TransactionType)
+
+    def mutate(self, info, account_id, category_id, amount, date, description):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise GraphQLError("User not authenticated")
+        account = Account.objects.get(id=account_id)
+        category = Category.objects.get(id=category_id)
+        transaction = Transaction.objects.create(user=user, account=account, category=category, amount=amount, date=date, description=description)
+        return CreateTransaction(transaction=transaction)
+
+
+class Mutation(graphene.ObjectType):
+    create_account = CreateAccount.Field()
+    create_category = CreateCategory.Field()
+    create_transaction = CreateTransaction.Field()
+
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
